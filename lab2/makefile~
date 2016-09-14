@@ -5,10 +5,14 @@
 CCC = g++
 CCFLAGS = -g -std=c++11 -pedantic -Wall -Wextra
 
-server: server.o
-	$(CCC) $(CCFLAGS) server.o
+all: server
+
+server: server.o client.o
+	$(CCC) $(CCFLAGS) server.o client.o -o server
 server.o: server.c
 	$(CCC) $(CCFLAGS) -c server.c
+client.o: client.c
+	$(CCC) $(CCFLAGS) -c client.c
 
 # Städa arbetsmappen
 clean:
