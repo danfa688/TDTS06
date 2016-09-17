@@ -17,9 +17,14 @@
 #include "client.h"
 #include "util.h"
 
+//C++ includes
+#include <string>
+#include <vector>
+#include <iostream>
 
+using namespace std;
 
-int run_client(char *buf,const char *adress)
+int run_client(char *buf,int * buflen,const char *adress)
 {
     int sockfd, numbytes;  
     struct addrinfo hints, *servinfo, *p;
@@ -62,15 +67,20 @@ int run_client(char *buf,const char *adress)
     printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
-
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-        perror("recv");
-        exit(1);
-    }
-
-    buf[numbytes] = '\0';
-
-    printf("client: received '%s'\n",buf);
+    
+    //----------------------
+    
+    string s_buf(buf);	
+	vector<string> tokens = split(s_buf, "\r\n");
+	change_header_data_to(tokens, "Connection: ", "close");
+	*buflen = tokens_to_buf(tokens, buf);
+	
+	printf("client: sent '%s'\n", buf);
+	cout << "hallo" << endl;
+    
+   	send_all_buf(sockfd, buf, *buflen);
+    
+    *buflen = get_all_buf(sockfd, buf);
 
     close(sockfd);
 

@@ -1,0 +1,26 @@
+No.     Time           Source                Destination           Protocol Length Info
+     30 5.365460000    128.119.245.12        130.236.245.172       HTTP     747    HTTP/1.1 200 OK  (PNG)
+
+Frame 30: 747 bytes on wire (5976 bits), 747 bytes captured (5976 bits) on interface 0
+Ethernet II, Src: Cisco_72:63:80 (e0:5f:b9:72:63:80), Dst: Hewlett-_bc:f3:e8 (78:ac:c0:bc:f3:e8)
+Internet Protocol Version 4, Src: 128.119.245.12 (128.119.245.12), Dst: 130.236.245.172 (130.236.245.172)
+Transmission Control Protocol, Src Port: http (80), Dst Port: 64518 (64518), Seq: 3996, Ack: 802, Len: 693
+[3 Reassembled TCP Segments (3613 bytes): #28(1460), #29(1460), #30(693)]
+Hypertext Transfer Protocol
+    HTTP/1.1 200 OK\r\n
+    Date: Sat, 03 Sep 2016 12:09:10 GMT\r\n
+    Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips PHP/5.4.16 mod_perl/2.0.9dev Perl/v5.16.3\r\n
+    Last-Modified: Sat, 06 Aug 2016 10:08:14 GMT\r\n
+    ETag: "cc3-539645c7f1ee7"\r\n
+    Accept-Ranges: bytes\r\n
+    Content-Length: 3267\r\n
+    Keep-Alive: timeout=5, max=99\r\n
+    Connection: Keep-Alive\r\n
+    Content-Type: image/png\r\n
+    \r\n
+    [HTTP response 2/2]
+    [Time since request: 0.123043000 seconds]
+    [Prev request in frame: 23]
+    [Prev response in frame: 25]
+    [Request in frame: 26]
+Portable Network Graphics

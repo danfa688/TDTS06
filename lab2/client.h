@@ -3,8 +3,8 @@
 
 #define CLIENT_PORT "80" // the port client will be connecting to 
 
-#define MAXDATASIZE 10000 // max number of bytes we can get at once 
+#define MAXDATASIZE 100000 // max number of bytes we can get at once 
 
-int run_client(char *buf);
+int run_client(char *buf, int * buflen,const char *adress);
 
 #endif // CLIENT_H_
