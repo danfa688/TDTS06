@@ -1,0 +1,96 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/wait.h>
+#include <signal.h>
+
+
+
+
+//C++ includes
+#include <string>
+#include <vector>
+#include <iostream>
+
+#include "server_class.h"
+#include "client_class.h"
+#include "util.h"
+
+using namespace std;
+
+int main(int argc, char* argv[]){
+	if(argc < 2){
+		cout << "error, no port given!" << endl;
+		return 1;
+	}
+	
+	Server server(argv[1]);
+	server.init();
+	
+	printf("server: waiting for connections...\n");
+	
+	while(1) { 
+		if(server.listenForConnections()){
+			continue;
+		}
+		if (!fork()) { // this is the child process
+		
+			char buf[MAXDATASIZE];
+			int buflen=0;
+			
+			server.closeParentSock();
+			if (server.receive(buf, buflen) == server.ERROR){
+				server.stop();
+				return 1;
+			};
+			//filter
+			string s_buf(buf);	
+			vector<string> tokens = split(s_buf, "\r\n");
+			string host = get_host(tokens);
+			cout << host << endl;
+			
+			Client client;
+			if(client.init(host.c_str()) != client.SUCCESS){
+				server.stop();
+				return 1;
+			}
+
+			change_header_data_to(tokens, "Connection: ", "close");
+			buflen = tokens_to_buf(tokens, buf);
+			
+			if (client.sendAll(buf, buflen) != client.SUCCESS){
+				server.stop();
+				client.stop();
+				return 1;
+			}
+			int clientState = client.receiveHeader(buf, buflen);
+			if(clientState == client.PASS_THROUGH){
+				server.mySend(buf, buflen);
+				while(client.receive(buf, buflen)){
+					server.mySend(buf, buflen);
+				}
+			}else if (clientState == client.FILTER){
+				client.receiveRest(buf, buflen);
+				//filter
+				server.mySend(buf, buflen);
+			}
+			
+			client.stop();
+			server.stop();
+			return 0;	
+		}
+		server.closeChildSock();  // parent doesn't need this
+	}
+	
+	
+	return 0;
+}
+	

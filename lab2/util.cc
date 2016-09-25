@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-//#include <string>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -19,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -36,6 +36,17 @@ std::string get_host(std::vector<std::string> tokens){
 	int index = 0;
 	for(unsigned int i=0; i < tokens.size(); i++){
 		index = find_header_data_index("Host: ", tokens[i]);
+		if(index > -1){
+			return tokens[i].substr(index);
+		}
+	}
+	return "";
+}
+
+std::string get_url(std::vector<std::string> tokens){
+	int index = 0;
+	for(unsigned int i=0; i < tokens.size(); i++){
+		index = find_header_data_index("GET ", tokens[i]);
 		if(index > -1){
 			return tokens[i].substr(index);
 		}
@@ -76,39 +87,6 @@ int find_header_data_index(std::string header, std::string str){
 	return -1;
 }
 
-int get_all_buf(int socket, char *out_buf){
-	char buf[4096];
-	int bufptr=0;
-	int numbytes=-1;
-	
-	while(numbytes != 0){
-    	if ((numbytes = recv(socket, buf, 4095, 0)) == -1) {
-        	perror("recv");
-        	exit(1);
-    	}
-    	cout << "Numbytes: " << numbytes << endl;
-    	for(int i = 0; i<numbytes; i++){
-    		out_buf[bufptr++]=buf[i];
-    	}
-    }
-    
-    cout << "bufptr" << bufptr << endl;
-    
-    return bufptr;
-}
-
-void send_all_buf(int socket, char *in_buf, int buflen){
-	int bytes_sent=0;
-	int numbytes;		
-	while(bytes_sent < buflen){
-		if((numbytes = send(socket, in_buf+bytes_sent, buflen-bytes_sent, 0)) == -1){
-			perror("send");
-			exit(1);
-		}
-		bytes_sent+=numbytes;
-    }
-}
-
 void change_header_data_to(std::vector<std::string> &tokens, std::string header, std::string new_data){
 	int index;
 	for(int i = 0; i < tokens.size(); i++){
@@ -131,4 +109,26 @@ int tokens_to_buf(std::vector<std::string> &tokens, char *buf){
 		buf[i]=c_s_buf[i];
 	}
 	return s_buf.size();
+}
+
+bool filter_msgs(std::string str){
+  // keywords
+  std::vector<std::string> searchTerms = {"spongebob", "britney spears", "paris hilton", "norrköping"};
+  transform(str.begin(), str.end(), str.begin(),::tolower);
+  for(int i = 0; i < searchTerms.size();i++){
+    if (str.find(searchTerms[i]) != -1){
+      return true;
+    }
+  }
+  return false;
+}
+
+void redirectBuff(char* buf, int &buflen){
+  char tmp[] = "HTTP/1.1 302 Found \r\nLocation: http://www.ida.liu.se/~TDTS04/labs/2011/ass2/error2.html\r\n\r\n";
+  buflen=(int) strlen(tmp);
+
+  for(int i = 0; i<buflen; i++){
+    buf[i]=tmp[i];
+  }
+  buf[buflen] = '\0';
 }
